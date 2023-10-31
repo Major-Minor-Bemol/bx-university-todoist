@@ -5,9 +5,12 @@
 // php todo.php list yesterday
 // php todo.php add "Wake up"
 // php todo.php add "Drink coffee"
-// php todo.php complete 1 2
+// php todo.php done 1 2
+// php todo.php undone 1 2
 // php todo.php remove 2 (rm)
 // php todo.php report
+
+require_once __DIR__ . '/boot.php';
 
 function main(array $arguments): void
 {
@@ -23,13 +26,16 @@ function main(array $arguments): void
 		case 'add':
 			addCommand($arguments);
 			break;
-		case 'complete':
-			completetCommand($arguments);
+		case 'done':
+			doneCommand($arguments);
+			break;
+		case 'undone':
+			undoneCommand($arguments);
 			break;
 		case 'remove':
 			removeCommand($arguments);
 			break;
-		case 'rn':
+		case 'rm':
 			removeCommand($arguments);
 			break;
 
@@ -40,79 +46,6 @@ function main(array $arguments): void
 
 	exit(0);
 
-}
-
-function removeCommand(array $arguments)
-{
-
-}
-
-function completetCommand(array $arguments)
-{
-
-}
-
-function addCommand(array $arguments)
-{
-	$title = array_shift($arguments);
-
-	$todo = [
-		'id' => uniqid(),
-		'title' => $title,
-		'completed' => true,
-	];
-
-	$fileName = date('Y-m-d') . '.txt';
-	$filePath = __DIR__ . '/data/' . $fileName;
-
-	if (file_exists($filePath))
-	{
-		$content = file_get_contents($filePath);
-		$todos = unserialize($content, [
-			'allowed_classes' => false,
-		]);
-		$todos[] = $todo;
-		file_put_contents($filePath, serialize($todos));
-	}
-	else
-	{
-		$todos = [$todo];
-
-		file_put_contents($filePath, serialize($todos));
-	}
-}
-
-function listCommand(array $arguments)
-{
-	$fileName = date('Y-m-d') . '.txt';
-	$filePath = __DIR__ . '/data/' . $fileName;
-
-	if (!file_exists($filePath))
-	{
-		echo 'Nothing to do here';
-		return;
-	}
-
-	$content = file_get_contents($filePath);
-	$todos = unserialize($content, [
-		'allowed_classes' => false,
-	]);
-
-	if (empty($todos))
-	{
-		echo 'Nothing to do here';
-		return;
-	}
-
-	foreach ($todos as $index => $todo)
-	{
-		echo sprintf(
-			"%s. [%s] %s \n",
-			($index + 1), //подставится в первый плейсхолдер %s, остальные также
-			$todo['completed'] ? 'x' : ' ',
-			$todo['title']
-		);
-	}
 }
 
 main($argv);
